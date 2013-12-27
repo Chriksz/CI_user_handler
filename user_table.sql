@@ -1,13 +1,13 @@
 CREATE TABLE `user` (
-  `user_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `password` char(40) NOT NULL,
-  `email` char(100) DEFAULT NULL,
-  `nickname` char(40) NOT NULL,
-  `birth` date DEFAULT NULL,
-  `reg_date` date DEFAULT NULL,
-  `pwres` char(40) DEFAULT NULL,
-  `salt` char(10) DEFAULT NULL,
-  `valid` enum('Y','N') DEFAULT 'N',
+  `u_user_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `u_password` char(40) NOT NULL,
+  `u_email` char(100) DEFAULT NULL,
+  `u_nickname` char(40) NOT NULL,
+  `u_birth` date DEFAULT NULL,
+  `u_reg_date` date DEFAULT NULL,
+  `u_pwres` char(40) DEFAULT NULL,
+  `u_salt` char(10) DEFAULT NULL,
+  `u_valid` enum('Y','N') DEFAULT 'N',
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `nickname` (`nickname`)
 )

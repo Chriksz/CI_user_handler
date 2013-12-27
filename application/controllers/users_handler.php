@@ -63,7 +63,7 @@ public function login(){
 
 		}
 	else{
-		// Save important user's data to cookie
+		// Save important user's data into cookie
 		$sessdata = array( 
 						'user_id' =>  $this->loginfo[0]['user_id'],
 						'username' => $this->loginfo[0]['nickname']
@@ -232,7 +232,7 @@ public function regist(){
 		// Header title.
 		$style['title'] = 'regisztráció';
 		
-		$this->load->view('templates/header');
+		$this->load->view('templates/header',$style);
 		$this->load->view('users/regist', $cap);
 		$this->load->view('templates/footer');
 		}
@@ -310,7 +310,7 @@ public function birth_check(){
 	$years= $this->input->post('years');
 	$birth = "$years-$months-$days";
 	
-	// The user must be minimum 14 years old
+	// user must be minimum 14 years old
 	$mindate = date('Y')-14;
 	$mindate .= '-'.date('n');
 	$mindate .= '-'.date('j');
@@ -340,7 +340,7 @@ public function verify($name, $key){
 		$this->users_model->update_table($updata);
 		$this->users_model->gen_verification($updata['where']['nickname']);
 		$result = $result->result_array();
-		// Save important user data to cookie, like as at a successful login
+		// Save important user data into cookie, like as at a successful login
 		$sessdata = array(
 		'username' => $updata['where']['nickname'],
 		'user_id' => $result[0]['user_id']
