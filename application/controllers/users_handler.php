@@ -295,7 +295,7 @@ private function mailer($content, $recipient, $subject){
 }
 
 public function logout(){
-// unset the cookie data
+// unset cookie data
 	$this->session->sess_destroy();
 	$url = prep_url(site_url());
 	redirect($url, 'refresh');
@@ -340,7 +340,7 @@ public function verify($name, $key){
 		$this->users_model->update_table($updata);
 		$this->users_model->gen_verification($updata['where']['nickname']);
 		$result = $result->result_array();
-		// Save important user data into cookie, like as at a successful login
+		// Save important user data into cookie, like a successful login
 		$sessdata = array(
 		'username' => $updata['where']['nickname'],
 		'user_id' => $result[0]['user_id']
