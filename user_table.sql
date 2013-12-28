@@ -8,6 +8,6 @@ CREATE TABLE `user` (
   `u_pwres` char(40) DEFAULT NULL,
   `u_salt` char(10) DEFAULT NULL,
   `u_valid` enum('Y','N') DEFAULT 'N',
-  PRIMARY KEY (`user_id`),
-  UNIQUE KEY `nickname` (`nickname`)
+  PRIMARY KEY (`u_user_id`),
+  UNIQUE KEY `nickname` (`u_nickname`)
 )
