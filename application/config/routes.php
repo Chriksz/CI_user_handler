@@ -41,9 +41,9 @@
 
 $route['bejelentkezes'] = 'users_handler/login';
 $route['kijelentkezes'] = 'users_handler/logout';
-$route['regisztracio'] = 'users_handler/regist';
+$route['regisztracio'] = 'users_handler/registration';
 $route['regisztracio/(:any)/(:any)'] ='users_handler/verify/$1/$2';
-$route['elfelejtettjelszo'] = 'users_handler/fogotten_pw';
+$route['elfelejtettjelszo'] = 'users_handler/get_fogotten_pw';
 $route['elfelejtettjelszo/(:any)']='users_handler/password_reset/$1';
 
 

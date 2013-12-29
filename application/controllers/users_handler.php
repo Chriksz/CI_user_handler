@@ -79,7 +79,7 @@ class Users_handler extends CI_Controller {
 
 
 	
-	public function forgotten_pw()
+	public function get_forgotten_pw()
 	{
 		//password reset attempting
 		// Set your additional inputs.
@@ -163,7 +163,7 @@ class Users_handler extends CI_Controller {
 	
 	}	
 
-	public function regist(){
+	public function registration(){
 		// Set your additional inputs
 		$config = array(
 			array(
