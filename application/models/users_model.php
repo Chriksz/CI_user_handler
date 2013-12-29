@@ -21,19 +21,19 @@ class users_model extends CI_Model{
 			'u_salt' => $randomstring
 		);
 
-	return $this->db->insert('user', $data);
+		return $this->db->insert('user', $data);
 	}
 
 	public function gen_verification($id)
 	{
-	$title = sha1(date("Y:m:d s").$id);
-	$data = array(
-		'u_pwres' => $title,
-     );
+		$title = sha1(date("Y:m:d s").$id);
+		$data = array(
+			'u_pwres' => $title,
+		);
 
-	$this->db->where('nickname', $id);
-	$this->db->update('user', $data);
-	return $title; 
+		$this->db->where('nickname', $id);
+		$this->db->update('user', $data);
+		return $title; 
 	}
 
 
@@ -56,7 +56,8 @@ class users_model extends CI_Model{
 	}
 
 
-	public function arg_check($tablename, $data){
+	public function arg_check($tablename, $data)
+	{
 		if (isset($data['where']))
 		{
 		$this->db->where($data['where']);
