@@ -322,7 +322,7 @@ class Users_controller extends CI_Controller
 		$this->users_model->gen_verification($updata['where']['u_nickname']);
 		$result = $result->result_array();
 		
-		// Save important user data into cookie, like as at a successful login
+		// Save important user's data into cookie, like a successful login
 		$sessdata = array(
 		'username' => $updata['where']['u_nickname'],
 		'user_id' => $result[0]['u_user_id']
