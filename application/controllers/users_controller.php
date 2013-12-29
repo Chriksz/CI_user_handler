@@ -43,7 +43,7 @@ class Users_controller extends CI_Controller
 			array(
 				'field'   => 'password',
 				'label'   => 'Jelszó',
-				'rules'   => 'required|min_length[5]|callback_isvalid'
+				'rules'   => 'required|min_length[5]|callback_login_data_check'
 			)
 		);
 		$this->form_validation->set_rules($config);
@@ -93,7 +93,7 @@ class Users_controller extends CI_Controller
 			array(
 				'field'   => 'email',
 				'label'   => 'Email',
-				'rules'   => 'required|valid_email|callback_isvalid'
+				'rules'   => 'required|valid_email|callback_login_data_check'
 			),
 			array(
 				'field'   => 'captcha',
@@ -352,7 +352,7 @@ class Users_controller extends CI_Controller
 			return FALSE;
 	}
 
-	public function captvalidate($str)
+	public function capt_validate($str)
 	{
 		$valchap = $this->session->userdata('chaptaword');
 		// Compare the captcha to the input string, upper/lower case does not matter
@@ -365,7 +365,7 @@ class Users_controller extends CI_Controller
 	}
 
 
-	public function isvalid($str)
+	public function login_data_check($str)
 	{
 		// check the given password and nickname
 		$data['where']['u_nickname'] = $this->input->post('username');
