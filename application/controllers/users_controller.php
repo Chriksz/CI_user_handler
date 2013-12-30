@@ -11,7 +11,7 @@ class Users_controller extends CI_Controller
 	public $validbirth;
 	//HTML header title, styles etc
 	public $headerarray;
-	//additional view files, data for rendering
+	//additional view files
 	//use like the standard view() function, the first element of each given array must be the path string
 	public $plusview = FALSE;
 	
