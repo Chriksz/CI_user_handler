@@ -1,7 +1,7 @@
 CREATE TABLE `user` (
   `u_user_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `u_password` char(40) NOT NULL,
-  `u_email` char(100) DEFAULT NULL,
+  `u_email` char(100) unique DEFAULT NULL,
   `u_nickname` char(40) NOT NULL,
   `u_birth` date DEFAULT NULL,
   `u_reg_date` date DEFAULT NULL,

@@ -4,6 +4,17 @@ class Users_controller extends CI_Controller
 
 	// I didn't implement proper CSRF protection. I highly recommend to turn on the CI CSRF protection!
 	
+	
+	// Fetched data about the user.	
+	public $loginfo;
+	// Clarified birth date.
+	public $validbirth;
+	//HTML header title, styles etc
+	public $headerarray;
+	//additional view files, data for rendering
+	//use like the standard view() function, the first element of each given array must be the path string
+	public $plusview = FALSE;
+	
 	public function __construct()
 	{
 		parent::__construct();
@@ -12,10 +23,7 @@ class Users_controller extends CI_Controller
 		$this->load->library(array('session', 'form_validation'));
 	}
 	
-	// Fetched data about the user.	
-	public $loginfo;
-	// Clarified birth date.
-	public $validbirth;
+
 
 	public function login()
 	{
@@ -34,35 +42,22 @@ class Users_controller extends CI_Controller
 			$this->form_validation->set_rules('captcha', 'Character', 'required|alpha_numeric|callback_captvalidate');
 		}
 		// Set your additional inputs.
-		$config = array( 
-			array(
-				'field'   => 'username',
-				'label'   => 'Felhasználónév',
-				'rules'   => 'required|min_length[2]|max_length[40]|alpha_numeric'
-			),
-			array(
-				'field'   => 'password',
-				'label'   => 'Jelszó',
-				'rules'   => 'required|min_length[5]|callback_login_data_check'
-			)
-		);
-		$this->form_validation->set_rules($config);
-		if ($this->form_validation->run() == FALSE)
+
+		if ($this->form_validation->run('login') == FALSE)
 		{
-			// Chaptcha generating
+			// Captcha generating
 			if ($try>3)
 			{
 				$cap = $this->_captcha_maker();
 			}
 			else
 			{
-			$cap = false;
+			$cap = FALSE;
 			}
 			// Header title.
-			$style['title'] = 'bejelentkezes';
-			$this->load->view('templates/header', $style);
-			$this->load->view('users/login', $cap);
-			$this->load->view('templates/footer');
+			$this->headerarray['title'] = 'bejelentkezes';
+			$this->plusview = array('users/login', $cap);  
+			$this->view_maker();
 
 		}
 		else
@@ -74,7 +69,9 @@ class Users_controller extends CI_Controller
 			);
 			$this->session->set_userdata($sessdata);
 			$this->session->unset_userdata('try');
-			$this->load->view('templates/redirect');
+			
+			$this->plusview = array('templates/redirect');  
+			$this->view_maker();
 		}
 	}
 
@@ -83,32 +80,13 @@ class Users_controller extends CI_Controller
 	public function get_forgotten_pw()
 	{
 		//password reset attempting
-		// Set your additional inputs.
-		$config = array(
-			array(
-				'field'   => 'username',
-				'label'   => 'Felhasználónév',
-				'rules'   => 'required|min_length[2]|max_length[40]|alpha_numeric'
-			),
-			array(
-				'field'   => 'email',
-				'label'   => 'Email',
-				'rules'   => 'required|valid_email|callback_login_data_check'
-			),
-			array(
-				'field'   => 'captcha',
-				'label'   => 'Character',
-				'rules'   => 'required|alpha_numeric|callback_captvalidate'
-			),
-		);
 
-		$this->form_validation->set_rules($config);
-		if ($this->form_validation->run() == FALSE)
+		if ($this->form_validation->run('fg_pw') == FALSE)
 		{
 			$cap = $this->_captcha_maker();
-			$this->load->view('templates/header');
-			$this->load->view('users/forgpw', $cap);
-			$this->load->view('templates/footer');
+			$this->headerarray['title'] = 'elfelejtett jelszó';
+			$this->plusview = array('users/forgpw', $cap);  
+			$this->view_maker();
 		}
 		else 
 		{
@@ -121,9 +99,10 @@ class Users_controller extends CI_Controller
 			$link .= "<p><a href='$url/$key'>Link</a></p></body></html>";	
 			$subject = "nevalaszolj";
 			$this->_mailer($link, $email, $subject);
-			$this->load->view('templates/header');
-			$this->load->view('users/success');
-			$this->load->view('templates/footer');
+
+			$this->headerarray['title'] = 'regisztráció';
+			$this->plusview = array('users/success');  
+			$this->view_maker();
 		}
 	}
 
@@ -138,13 +117,11 @@ class Users_controller extends CI_Controller
 			redirect($url, 'refresh');
 		}
 		//new password input
-		$this->form_validation->set_rules('password','Jelszó', 'required|matches[passconf]|min_length[5]');
-		$this->form_validation->set_rules('passconf', 'Jelszó', 'required');
-		if ($this->form_validation->run() == FALSE)
+		if ($this->form_validation->run('password_reset') == FALSE)
 		{
-			$this->load->view('templates/header');
-			$this->load->view('users/passres', $data['where']);
-			$this->load->view('templates/footer');
+
+			$this->plusview = array( 'users/passres',  $data['where']);
+			$this->view_maker();
 		}
 		else
 		{
@@ -153,7 +130,7 @@ class Users_controller extends CI_Controller
 			$updata['where']['u_nickname'] = $result[0]['u_nickname']; 
 			$updata['tablename'] = 'user';
 			$updata['fset'] = array(
-			'u_password' => 'sha1(concat('.$this->db->escape($this->input->post('password')).', salt))'
+			'u_password' => 'sha1(concat('.$this->db->escape($this->input->post('password')).', u_salt))'
 			);
 			$this->users_model->update_table($updata);
 			// Verification key regenerating.
@@ -164,65 +141,16 @@ class Users_controller extends CI_Controller
 	
 	}	
 
-	public function registration(){
-		// Set your additional inputs
-		$config = array(
-			array(
-				'field'   => 'username',
-				'label'   => 'Felhasználónév',
-				'rules'   => 'required|min_length[2]|max_length[40]|alpha_numeric|callback_unique_check'
-			),
-			array(
-				'field'   => 'password',
-				'label'   => 'Jelszó',
-				'rules'   => 'required|matches[passconf]|min_length[5]'
-			),
-			array(
-				'field'   => 'passconf',
-				'label'   => 'Jelszó',
-				'rules'   => 'required'
-			),   
-			array(
-				'field'   => 'email',
-				'label'   => 'Email',
-				'rules'   => 'required|valid_email|callback_unique_check'
-			),
-			array(
-				'field'   => 'years',
-				'label'   => 'Év',
-				'rules'   => 'required|numeric'
-			),
-			array(
-				'field'   => 'months',
-				'label'   => 'Hónap',
-				'rules'   => 'required|numeric|callback_birth_check'
-			),
-			array(
-				'field'   => 'days',
-				'label'   => 'Nap',
-				'rules'   => 'required|numeric'
-			),
-			array(
-				'field'   => 'license',
-				'label'   => 'Feltételek',
-				'rules'   => 'required'
-			),
-			array(
-				'field'   => 'captcha',
-				'label'   => 'Character',
-				'rules'   => 'required|alpha_numeric|callback_captvalidate'
-			)  		  				  
-		);
-		$this->form_validation->set_rules($config);
+	public function registration()
+	{
 		
-		if ($this->form_validation->run() == FALSE)
+		if ($this->form_validation->run('registration') == FALSE)
 		{
 			$cap = $this->_captcha_maker();
-			// Header title.
-			$style['title'] = 'regisztráció';
-			$this->load->view('templates/header',$style);
-			$this->load->view('users/regist', $cap);
-			$this->load->view('templates/footer');
+
+			$this->headerarray['title'] = 'regisztráció';
+			$this->plusview = array( 'users/regist', $cap);
+			$this->view_maker();
 		}
 		else
 		{
@@ -238,10 +166,47 @@ class Users_controller extends CI_Controller
 			$link .= "<p><a href='$url/$username/$key'>Link</a></p></body></html>";			
 			$subject = "nevalaszolj";
 			$this->_mailer($link, $usermail, $subject);
-			$this->load->view('templates/header');
-			$this->load->view('users/success');
-			$this->load->view('templates/footer');
+			
+			$this->plusview = array( 'users/success');
+			$this->view_maker();
 		}
+	}
+	public function logout()
+	{
+		// unset cookie data
+		$this->session->sess_destroy();
+		$url = prep_url(site_url());
+		redirect($url, 'refresh');
+	}
+	
+	public function verify($name, $key)
+	{
+		$data['where']['u_nickname'] = $name;
+		$data['where']['u_pwres'] = $key;
+		$result = $this->users_model->arg_check('user', $data);
+		
+		// If $key doesn't exist, redirect.
+		if (!$result->num_rows())
+		{
+			$this->load->view('templates/redirect');
+			return;
+		}
+		$updata['where']['u_nickname'] = $data['where']['u_nickname'];
+		
+		// Save the successful email confirmation into the db.
+		$updata['set']['u_valid'] = 'Y';
+		$updata['tablename'] = 'user';
+		$this->users_model->update_table($updata);
+		$this->users_model->gen_verification($updata['where']['u_nickname']);
+		$result = $result->result_array();
+		
+		// Save important user's data into cookie, like a successful login
+		$sessdata = array(
+		'username' => $updata['where']['u_nickname'],
+		'user_id' => $result[0]['u_user_id']
+		);
+		$this->session->set_userdata($sessdata);
+		$this->load->view('templates/redirect');
 	}
 
 	private function _captcha_maker()
@@ -254,7 +219,7 @@ class Users_controller extends CI_Controller
 			'img_height' => 30,
 		);
 		$cap = create_captcha($vals);
-		$this->session->set_userdata('chaptaword', $cap['word']);
+		$this->session->set_userdata('captword', $cap['word']);
 		return $cap;
 	
 	}
@@ -271,15 +236,35 @@ class Users_controller extends CI_Controller
 		$this->email->message($content);
 		$this->email->send();
 	}
-
-	public function logout()
+	
+	private function view_maker()
 	{
-		// unset cookie data
-		$this->session->sess_destroy();
-		$url = prep_url(site_url());
-		redirect($url, 'refresh');
+		$this->load->view('templates/header', $this->headerarray);
+		if($this->plusview != FALSE)
+		{
+			if (is_array($this->plusview[0]))
+			{
+				foreach ($this->plusview as $view)
+				{   
+					if (!isset($view[1]))
+					{
+						$view[1] = array();
+					}
+					$this->load->view($view[0], $view[1]);
+				}
+			}
+			else 
+			{
+				if (!isset($this->plusview[1]))
+				{
+					$this->plusview[1] = array();	
+				}
+				$this->load->view($this->plusview[0], $this->plusview[1]);
+			}
+		}
+		$this->load->view('templates/footer');	
 	}
-
+	
 
 	public function birth_check()
 	{
@@ -299,68 +284,39 @@ class Users_controller extends CI_Controller
 			return false;
 		}
 		$this-> validbirth = $birth;
-		return true;
+		return TRUE;
 	}
-	public function verify($name, $key)
-	{
-		$data['where']['u_nickname'] = $name;
-		$data['where']['u_pwres'] = $key;
-		$result = $this->users_model->arg_check('user', $data);
-		
-		// If $key doesn't exist, redirect.
-		if (!$result->num_rows())
-		{
-			echo "Hibás vagy elévült URL!";
-			return;
-		}
-		$updata['where']['u_nickname'] = $data['where']['u_nickname'];
-		
-		// Save the successful email confirmation into the db.
-		$updata['set']['u_valid'] = 'Y';
-		$updata['tablename'] = 'user';
-		$this->users_model->update_table($updata);
-		$this->users_model->gen_verification($updata['where']['u_nickname']);
-		$result = $result->result_array();
-		
-		// Save important user's data into cookie, like a successful login
-		$sessdata = array(
-		'username' => $updata['where']['u_nickname'],
-		'user_id' => $result[0]['u_user_id']
-		);
-		$this->session->set_userdata($sessdata);
-		$this->load->view('templates/redirect');
-	}	
 	
-	public function unique_check($str)
+	public function unique_check($data, $type)
 	{
 		// If the given email and nickname is already in the db, return false
-		if ( strrpos ($str, '@'))
+		if ($type == 'email')
 		{
-			$array['where']['u_email'] = $str;
+			$array['where']['u_email'] = $data;
 		}
 		else
 		{
-			$array['where']['u_nickname'] = $str;
+			$array['where']['u_nickname'] = $data;
 		}
 		$result = $this->users_model->arg_check('user', $array);
 		
 		if (!$result->num_rows())
 		{ 
-			return true;
+			return TRUE;
 		}
-		$this->form_validation->set_message('unique_check', "A(z) %s már foglalt!");
+		$this->form_validation->set_message('unique_check', 'A(z) %s már foglalt!');
 			return FALSE;
 	}
 
 	public function capt_validate($str)
 	{
-		$valchap = $this->session->userdata('chaptaword');
+		$valchap = $this->session->userdata('captword');
 		// Compare the captcha to the input string, upper/lower case does not matter
 		if (strtolower ($valchap) == strtolower ($str))
 		{
-			return true;
+			return TRUE;
 		}
-		$this->form_validation->set_message('captvalidate', "Helytelen a beírt karaktersor!");
+		$this->form_validation->set_message('captvalidate', 'Helytelen a beírt karaktersor!');
 		return FALSE;	
 	}
 
@@ -370,13 +326,13 @@ class Users_controller extends CI_Controller
 		// check the given password and nickname
 		$data['where']['u_nickname'] = $this->input->post('username');
 		$email = $this->input->post('email');
-		if ( $email != false)
+		if ( $email != FALSE)
 		{
 			$data['where']['u_email'] = $str;
 		}
 		else
 		{
-			$data['fwhere']['u_password'] = 'sha1(concat('.$this->db->escape($str).', salt))';
+			$data['fwhere']['u_password'] = 'sha1(concat('.$this->db->escape($str).', u_salt))';
 		}
 		$result = $this->users_model->arg_check('user', $data);
 		
@@ -387,7 +343,7 @@ class Users_controller extends CI_Controller
 		}
 
 		$this->loginfo = $result->result_array();
-		return true;	
+		return TRUE;	
 	}
 
 }
