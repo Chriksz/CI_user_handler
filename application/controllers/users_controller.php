@@ -41,7 +41,7 @@ class Users_controller extends CI_Controller
 		{
 			$this->form_validation->set_rules('captcha', 'Character', 'required|alpha_numeric|callback_captvalidate');
 		}
-		// Set your additional inputs.
+
 
 		if ($this->form_validation->run('login') == FALSE)
 		{
