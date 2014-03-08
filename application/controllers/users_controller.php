@@ -8,7 +8,7 @@ class Users_controller extends CI_Controller
 	// Fetched data about the user.	
 	public $loginfo;
 	// Clarified birth date.
-	public $validbirth;
+	private $validbirth;
 	//HTML header title, styles etc
 	public $headerarray;
 	//additional view files
