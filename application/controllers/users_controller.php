@@ -103,8 +103,8 @@ class Users_controller extends CI_Controller
          */
 	public function password_reset($key)
 	{
-		$data['where']['u_pwres'] = $key;
-		$result = $this->users_model->arg_check('user', $data);
+		$data['u_pwres'] = $key;
+		$result = $this->db->get_where('user', $data);
 		// If $key doesn't exist, redirect.
 		if (!$result->num_rows())
 		{
@@ -259,14 +259,14 @@ class Users_controller extends CI_Controller
 	{
 		if ($type == 'email')
 		{
-			$array['where']['u_email'] = $data;
+			$array['u_email'] = $data;
 		}
 		else
 		{
-			$array['where']['u_nickname'] = $data;
+			$array['u_nickname'] = $data;
 		}
 		
-		if (!$this->users_model->arg_check('user', $array)->num_rows())
+		if (!$this->db->get_where('user', $array)->num_rows())
 		{ 
 			return TRUE;
 		}

@@ -105,23 +105,4 @@ class Users_model extends CI_Model
 		$this->users_model->gen_verification($username);
             
         }
-        /**
-         * 
-         * @param string $tablename
-         * @param array $data
-         * @return Object
-         */
-	public function arg_check($tablename, $data)
-	{
-		if (isset($data['where']))
-		{
-		$this->db->where($data['where']);
-		}
-		if (isset($data['fwhere']))
-		{
-			$this->db->where($data['fwhere'], null, false);
-	
-		}	
-		return  $this->db->get($tablename);	
-	}
 }
