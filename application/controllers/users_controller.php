@@ -223,7 +223,7 @@ class Users_controller extends CI_Controller
 		$this->email->to($recipient);
 		$this->email->subject($subject);
 		$this->email->message($content);
-		$this->email->send();
+		$this->email->send(); 
 	}
 	
         /**
@@ -290,6 +290,7 @@ class Users_controller extends CI_Controller
 	}
 
         /**
+         * 
          * 
          * @param string $userinput
          * @return boolean
