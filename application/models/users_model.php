@@ -9,9 +9,16 @@ class Users_model extends CI_Model
 		$this->load->database();
 	}
 
-
+        /**
+         * 
+         * @param string $username
+         * @param string $usermail
+         * @param string $birth
+         * @return Object
+         */
 	public function insert_user($username, $usermail, $birth)
 	{
+                //generate salt
 		$randomstring = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 10);
 		$data = array(
 			'u_nickname' => $username,
@@ -24,39 +31,86 @@ class Users_model extends CI_Model
 
 		return $this->db->insert('user', $data);
 	}
-
-	public function gen_verification($id)
+        /**
+         * 
+         * @param string $name
+         * @return string
+         */
+	public function gen_verification($name)
 	{
-		$title = sha1(date("Y:m:d s").$id);
+		$title = sha1(date("Y:m:d s").$name);
 		$data = array(
 			'u_pwres' => $title,
 		);
 
-		$this->db->where('nickname', $id);
+		$this->db->where('nickname', $name);
 		$this->db->update('user', $data);
 		return $title; 
 	}
-
-
-	public function update_table($data)
-	{
-		$this->db->where($data['where']);
-
-		if (isset($data['set']))
+        /**
+         * 
+         * @param string $username
+         * @param string $userdata
+         * @param bool $iskey
+         * @return Object
+         */
+        public function get_valid_user($username, $userdata, $iskey = false)
+        {
+                $this->db->where('u_nickname', $username);
+                if ($iskey)
+                {
+                    $this->db->where('u_pwres', $userdata);
+                }
+		else if ( $this->form_validation->valid_email($userdata))
 		{
-			$this->db->set($data['set']);
+			$this->db->where('u_email', $userdata);
 		}
-
-		if (isset($data['fset']))
+		else
 		{
-			$this->db->set($data['fset'], null, false);
+			$this->db->where('u_password', $this->_get_pw_hash($userdata), false);
 		}
-
-		return $this->db->update($data['tablename']);
-
-	}
-
-
+		return $this->db->get('user');
+        }
+        /**
+         * 
+         * @param string $username
+         * @param string $password
+         */
+        public function update_user_pw($username, $password)
+        {
+            	$this->db->where('u_nickname', $username); 
+                $this->db->set('u_password', $this->_get_pw_hash($password), false);
+                $this->db->update('user');
+                $this->users_model->gen_verification($username);
+        }
+        /**
+         * 
+         * @param string $password
+         * @return string
+         */
+        private function _get_pw_hash($password)
+        {
+            return 'sha1(concat('.$this->db->escape($password).', u_salt))';
+        }
+        /**
+         * 
+         * @param string $username
+         */
+        public function confirm_user($username)
+        {
+                 $this->db->where('u_nickname', $username);
+		// Save the successful email confirmation into the db. 
+		$this->db->set('u_valid', 'Y');
+		$this->db->update('user');
+		$this->users_model->gen_verification($username);
+            
+        }
+        /**
+         * 
+         * @param string $tablename
+         * @param array $data
+         * @return Object
+         */
 	public function arg_check($tablename, $data)
 	{
 		if (isset($data['where']))
@@ -71,4 +125,3 @@ class Users_model extends CI_Model
 		return  $this->db->get($tablename);	
 	}
 }
-?>
