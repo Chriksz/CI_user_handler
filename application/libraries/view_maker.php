@@ -23,11 +23,12 @@ class View_maker {
         // CI super object
         protected $CI;
         // default value: all time scripts
-        private $_scripts = array( 'jquery-ui-1.10.4.custom.min', 'gomb_mutato');
+        private $_scripts;
         
         public function __construct()
 	{
                 $this->CI =& get_instance();
+                $this->_scripts = $this->CI->config->item('standard_scripts');
 	}
         
         public function set_postmode($setting)
