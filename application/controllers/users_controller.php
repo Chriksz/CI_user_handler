@@ -241,7 +241,7 @@ class Users_controller extends CI_Controller
 		$mindate .= '-'.date('n');
 		$mindate .= '-'.date('j');
 		
-		if ($birth >= $mindate)
+		if (strtotime($birth) >= strtotime($mindate))
 		{
 			$this->form_validation->set_message('birth_check', "Ön túl fiatal $birth!");
 			return false;
