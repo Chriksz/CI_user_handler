@@ -30,8 +30,7 @@ class Users_controller extends CI_Controller
 		}
 		// Login tries counting.
 		$try = intval($this->session->userdata('try'));
-		$try++;
-		$this->session->set_userdata('try', $try );
+
 		if ($try>3)
 		{
 			$this->form_validation->set_rules('captcha', 'Character', 'required|alpha_numeric|callback_captvalidate');
@@ -42,6 +41,8 @@ class Users_controller extends CI_Controller
 		{
 			// Captcha generating
 			$cap = $try>3 ? $this->_captcha_maker() : FALSE;
+			$try++;
+			$this->session->set_userdata('try', $try );
 			$headerarray['style'] = 'logins';
 			$headerarray['title'] = 'bejelentkezes';
                         $this->view_maker->set_headerarray($headerarray);
