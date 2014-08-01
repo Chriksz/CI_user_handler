@@ -298,7 +298,7 @@ class Users_controller extends CI_Controller
          */
 	public function login_data_check($userinput)
 	{
-		$user = $this->users_model->get_valid_user($this->input->post('username'), $userinput);
+		$user = $this->users_model->get_valid_user($this->input->post('username'), $this->input->post('password'));
 		if (!$user->num_rows())
 		{
 			$this->form_validation->set_message('login_data_check', "Helytelen adatok!");
