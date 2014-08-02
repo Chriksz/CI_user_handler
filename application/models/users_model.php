@@ -6,7 +6,7 @@ class Users_model extends CI_Model
 { 
 	public function __construct()
 	{
-		$this->load->database();
+            $this->load->database();
 	}
 
         /**
@@ -18,18 +18,18 @@ class Users_model extends CI_Model
          */
 	public function insert_user($username, $usermail, $birth)
 	{
-                //generate salt
-		$randomstring = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 10);
-		$data = array(
-			'u_nickname' => $username,
-			'u_password' => sha1($this->input->post('password').$randomstring),
-			'u_email'=> $usermail,
-			'u_reg_date' => date("Y-m-d"),
-			'u_birth' =>$birth,
-			'u_salt' => $randomstring
-		);
+            //generate salt
+            $randomstring = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 10);
+            $data = array(
+                    'u_nickname' => $username,
+                    'u_password' => sha1($this->input->post('password').$randomstring),
+                    'u_email'=> $usermail,
+                    'u_reg_date' => date("Y-m-d"),
+                    'u_birth' =>$birth,
+                    'u_salt' => $randomstring
+            );
 
-		return $this->db->insert('user', $data);
+            return $this->db->insert('user', $data);
 	}
         /**
          * 
@@ -38,14 +38,14 @@ class Users_model extends CI_Model
          */
 	public function gen_verification($name)
 	{
-		$title = sha1(date("Y:m:d s").$name);
-		$data = array(
-			'u_pwres' => $title,
-		);
+            $title = sha1(date("Y:m:d s").$name);
+            $data = array(
+                    'u_pwres' => $title,
+            );
 
-		$this->db->where('nickname', $name);
-		$this->db->update('user', $data);
-		return $title; 
+            $this->db->where('nickname', $name);
+            $this->db->update('user', $data);
+            return $title; 
 	}
         /**
          * 
@@ -56,20 +56,20 @@ class Users_model extends CI_Model
          */
         public function get_valid_user($username, $userdata, $iskey = false)
         {
-                $this->db->where('u_nickname', $username);
-                if ($iskey)
-                {
-                    $this->db->where('u_pwres', $userdata);
-                }
-		else if ( $this->form_validation->valid_email($userdata))
-		{
-			$this->db->where('u_email', $userdata);
-		}
-		else
-		{
-			$this->db->where('u_password', $this->_get_pw_hash($userdata), false);
-		}
-		return $this->db->get('user');
+            $this->db->where('u_nickname', $username);
+            if ($iskey)
+            {
+                $this->db->where('u_pwres', $userdata);
+            }
+            else if ( $this->form_validation->valid_email($userdata))
+            {
+                    $this->db->where('u_email', $userdata);
+            }
+            else
+            {
+                    $this->db->where('u_password', $this->_get_pw_hash($userdata), false);
+            }
+            return $this->db->get('user');
         }
         /**
          * 
@@ -78,10 +78,10 @@ class Users_model extends CI_Model
          */
         public function update_user_pw($username, $password)
         {
-            	$this->db->where('u_nickname', $username); 
-                $this->db->set('u_password', $this->_get_pw_hash($password), false);
-                $this->db->update('user');
-                $this->users_model->gen_verification($username);
+            $this->db->where('u_nickname', $username); 
+            $this->db->set('u_password', $this->_get_pw_hash($password), false);
+            $this->db->update('user');
+            $this->users_model->gen_verification($username);
         }
         /**
          * 
@@ -98,11 +98,11 @@ class Users_model extends CI_Model
          */
         public function confirm_user($username)
         {
-                 $this->db->where('u_nickname', $username);
-		// Save the successful email confirmation into the db. 
-		$this->db->set('u_valid', 'Y');
-		$this->db->update('user');
-		$this->users_model->gen_verification($username);
+            $this->db->where('u_nickname', $username);
+           // Save the successful email confirmation into the db. 
+           $this->db->set('u_valid', 'Y');
+           $this->db->update('user');
+           $this->users_model->gen_verification($username);
             
         }
 }
