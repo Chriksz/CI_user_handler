@@ -89,7 +89,7 @@ class Users_controller extends CI_Controller
             $username = $this->input->post('username');
             $email = $this->input->post('email');
             $key = $this->Users_model->gen_verification($username);
-            $link = $this->load->view('forgpwmail', array('key' => $key, 'username' => $username));	
+            $link = $this->load->view('forgpwmail', array('key' => $key, 'username' => $username),FALSE);	
             $subject = "nevalaszolj";
             $this->_mailer($link, $email, $subject);
             $headerarray['title'] = 'regisztráció';
@@ -152,7 +152,7 @@ class Users_controller extends CI_Controller
 
             //Send verification email, to make sure the given email exists 
             $key = $this->Users_model->gen_verification($username);
-            $mail = $this->load->view('regmail', array('key' => $key, 'username' => $username));
+            $mail = $this->load->view('regmail', array('key' => $key, 'username' => $username),FALSE);
             $subject = "nevalaszolj";
             $this->_mailer($mail, $usermail, $subject);
             $this->view_maker->set_plusview(array('users/success'));
