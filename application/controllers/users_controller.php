@@ -18,7 +18,7 @@ class Users_controller extends CI_Controller
     public function __construct()
     {
         parent::__construct();
-        $this->load->model('users_model');
+        $this->load->model('Users_model');
         $this->load->helper(array('form', 'url', 'captcha'));
         $this->load->library(array('session', 'form_validation'));
     }
@@ -68,7 +68,7 @@ class Users_controller extends CI_Controller
             $this->view_maker->view_maker();
         }
     }
-
+    
 
 
     public function get_forgotten_pw()
@@ -88,7 +88,7 @@ class Users_controller extends CI_Controller
             //Send verification email, to confirm the password resetting
             $username = $this->input->post('username');
             $email = $this->input->post('email');
-            $key = $this->users_model->gen_verification($username);
+            $key = $this->Users_model->gen_verification($username);
             $link = $this->load->view('forgpwmail', array('key' => $key, 'username' => $username));	
             $subject = "nevalaszolj";
             $this->_mailer($link, $email, $subject);
@@ -124,7 +124,7 @@ class Users_controller extends CI_Controller
         else
         {
             $result = $result->result_array();
-            $this->users_model->update_user_pw( $result[0]['u_nickname'], $this->input->post('password'));
+            $this->Users_model->update_user_pw( $result[0]['u_nickname'], $this->input->post('password'));
             $url = prep_url(site_url('bejelentkezes'));	
             redirect($url, 'refresh');
         }
@@ -148,10 +148,10 @@ class Users_controller extends CI_Controller
             // Insert the new user's data into the db
             $username = $this->input->post('username');
             $usermail = $this->input->post('email');
-            $this->users_model->insert_user($username, $usermail, $this-> validbirth);	
+            $this->Users_model->insert_user($username, $usermail, $this-> validbirth);	
 
             //Send verification email, to make sure the given email exists 
-            $key = $this->users_model->gen_verification($username);
+            $key = $this->Users_model->gen_verification($username);
             $mail = $this->load->view('regmail', array('key' => $key, 'username' => $username));
             $subject = "nevalaszolj";
             $this->_mailer($mail, $usermail, $subject);
@@ -172,14 +172,14 @@ class Users_controller extends CI_Controller
      */
     public function verify($name, $key)
     {
-        $result = $this->users_model->get_valid_user($name, $key, true);
+        $result = $this->Users_model->get_valid_user($name, $key, true);
         // If $key doesn't exist, redirect.
         if (!$result->num_rows())
         {
             $url = prep_url(site_url());	
             redirect($url, 'refresh');
         }
-        $this->users_model->confirm_user($name);
+        $this->Users_model->confirm_user($name);
         $result = $result->result_array();
         // Save important user's data into cookie, like a successful login
         $sessdata = array(
@@ -297,7 +297,7 @@ class Users_controller extends CI_Controller
      */
     public function login_data_check($userinput)
     {
-        $user = $this->users_model->get_valid_user($this->input->post('username'), $this->input->post('password'));
+        $user = $this->Users_model->get_valid_user($this->input->post('username'), $this->input->post('password'));
         if (!$user->num_rows())
         {
                 $this->form_validation->set_message('login_data_check', "Helytelen adatok!");
