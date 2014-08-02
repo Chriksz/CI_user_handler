@@ -12,17 +12,31 @@
  * @author Chriss
  */
 class View_maker {
-    //put your code here
-    	//HTML header title, styles etc
+        /**
+         * HTML header title, styles etc
+         * @var array 
+         */
 	private $headerarray;
-	//additional view files, data for rendering
-	//use like the standard view() function, the first element of each given array must be the path string
+        /**
+         * additional view files, data for rendering 
+         * use like the standard view() function, the first element of each given array must be the path string
+         * @var array 
+         */
 	private $plusview = array();
-	//posttype for error displaying
+        /**
+         * posttype for error displaying
+         * @var string 
+         */
 	private $_postmode;
-        // CI super object
+        /**
+         * CI super object
+         * @var object 
+         */
         protected $CI;
-        // default value: all time scripts
+        /**
+         * default value: all time scripts
+         * @var array 
+         */
         private $_scripts;
         
         public function __construct()
