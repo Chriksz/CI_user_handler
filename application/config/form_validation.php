@@ -1,34 +1,30 @@
 <?php
 
 $user = array(
-				'field'   => 'username',
-				'label'   => 'Felhasználónév',
-				'rules'   => 'required|min_length[2]|max_length[40]|alpha_numeric'
-			);
+            'field'   => 'username',
+            'label'   => 'Felhasználónév',
+            'rules'   => 'required|min_length[2]|max_length[40]|alpha_numeric'
+        );
 $captcha = array(
-				'field'   => 'captcha',
-				'label'   => 'Character',
-				'rules'   => 'required|alpha_numeric|callback_captvalidate'
-			);
+                'field'   => 'captcha',
+                'label'   => 'Character',
+                'rules'   => 'required|alpha_numeric|callback_captvalidate'
+            );
 $password = array(
-				'field'   => 'password',
-				'label'   => 'Jelszó',
-				'rules'   => 'required|min_length[5]'
-			);
-$pwconf = 	array(
-				'field'   => 'passconf',
-				'label'   => 'Jelszó',
-				'rules'   => 'required'
-			);  		
+                'field'   => 'password',
+                'label'   => 'Jelszó',
+                'rules'   => 'required|min_length[5]'
+                );
+$pwconf =   array(
+                'field'   => 'passconf',
+                'label'   => 'Jelszó',
+                'rules'   => 'required'
+        );  		
 
 $config = array( 
 		'login' => 
 		array(
-			array (
-				'field'   => $user['field'],
-				'label'   => $user['label'],
-				'rules'   => $user['rules']
-			),
+                        $user,
 		
 			array(
 				'field'   => $password['field'],
@@ -36,14 +32,21 @@ $config = array(
 				'rules'   => $password['rules'].'|callback_login_data_check'
 			)
 		),
+    		'loginwithcap' => 
+		array(
+                        $user,
+		
+			array(
+				'field'   => $password['field'],
+				'label'   => $password['label'],
+				'rules'   => $password['rules'].'|callback_login_data_check'
+			),
+                        $captcha
+		),
 		
 		'fg_pw' => 
 		array(
-			array(
-				'field'   =>  $user['field'],
-				'label'   =>  $user['label'],
-				'rules'   =>  $user['rules']
-			),
+                        $user,
 			
 			array(
 				'field'   => 'email',
@@ -51,12 +54,7 @@ $config = array(
 				'rules'   => 'required|valid_email|callback_login_data_check'
 			),
 			
-			array(
-				'field'   => $captcha['field'],
-				'label'   => $captcha['label'],
-				'rules'   => $captcha['rules']
-			
-			)
+                        $captcha
 
 		),
 		'registration' => 
@@ -66,12 +64,7 @@ $config = array(
 				'label'   => $user['label'],
 				'rules'   => $user['rules'].'|callback_unique_check[nickname]'
 			),
-			
-			array(
-				'field'   => $captcha['field'],
-				'label'   => $captcha['label'],
-				'rules'   => $captcha['rules']
-			),
+                        $captcha,
 			
 			array(
 				'field'   => $password['field'],
@@ -79,11 +72,7 @@ $config = array(
 				'rules'   => $password['rules'].'|matches[passconf]'
 			),
 			
-			array(
-				'field'   => $pwconf['field'],
-				'label'   => $pwconf['label'],
-				'rules'   => $pwconf['rules']
-			),
+                        $captcha,
 			
 			array(
 				'field'   => 'email',
@@ -98,7 +87,7 @@ $config = array(
 			array(
 				'field'   => 'months',
 				'label'   => 'Hónap',
-				'rules'   => 'required|numeric|callback_birth_check'
+				'rules'   => 'required|numeric'
 			),
 			array(
 				'field'   => 'days',
@@ -117,11 +106,7 @@ $config = array(
 				'label'   => $password['label'],
 				'rules'   => $password['rules'].'|matches[passconf]'
 			),
-			array(
-				'field'   => $pwconf['field'],
-				'label'   => $pwconf['label'],
-				'rules'   => $pwconf['rules']
-			),
+                        $pwconf
 		)
 );
 

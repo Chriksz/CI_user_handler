@@ -9,11 +9,6 @@ class Users_controller extends CI_Controller
      * @var array 
      */
     private $loginfo;
-    /**
-     * Clarified birth date.
-     * @var string 
-     */
-    private $validbirth;
 
     public function __construct()
     {
@@ -35,14 +30,9 @@ class Users_controller extends CI_Controller
         }
         // Login tries counting.
         $try = intval($this->session->userdata('try'));
+        $validator = ($try>3) ? 'loginwithcap' : 'login';
 
-        if ($try>3)
-        {
-            $this->form_validation->set_rules('captcha', 'Character', 'required|alpha_numeric|callback_captvalidate');
-        }
-
-
-        if ($this->form_validation->run('login') == FALSE)
+        if ($this->form_validation->run($validator) == FALSE)
         {
             // Captcha generating
             $cap = $try>3 ? $this->_captcha_maker() : FALSE;
@@ -226,29 +216,6 @@ class Users_controller extends CI_Controller
         $this->email->send(); 
     }
 
-    /**
-     * 
-     * user must be minimum 14 years old
-     * @return boolean
-     */
-    public function birth_check()
-    {
-        $days = $this->input->post('days');
-        $months = $this->input->post('months');
-        $years= $this->input->post('years');
-        $birth = "$years-$months-$days";
-        $mindate = date('Y')-14;
-        $mindate .= '-'.date('n');
-        $mindate .= '-'.date('j');
-
-        if (strtotime($birth) >= strtotime($mindate))
-        {
-            $this->form_validation->set_message('birth_check', "Ön túl fiatal $birth!");
-            return false;
-        }
-        $this-> validbirth = $birth;
-        return TRUE;
-    }
     /**
      * If the given email or nickname is already in the db, return false
      * @param string $data
