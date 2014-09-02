@@ -7,85 +7,111 @@
  * @author Chriss
  */
 class View_maker {
-        /**
-         * HTML header title, styles etc
-         * @var array 
-         */
-	private $headerarray;
-        /**
-         * additional view files, data for rendering 
-         * use like the standard view() function, the first element of each given array must be the path string
-         * @var array 
-         */
-	private $plusview = array();
-        /**
-         * posttype for error displaying
-         * @var string 
-         */
-	private $_postmode;
-        /**
-         * CI super object
-         * @var object 
-         */
-        protected $CI;
-        /**
-         * default value: all time scripts
-         * @var array 
-         */
-        private $_scripts;
-        
-        public function __construct()
-	{
-                $this->CI =& get_instance();
-                $this->_scripts = $this->CI->config->item('standard_scripts');
-	}
-        
-        public function set_postmode($setting)
-        {
-            define('POSTMODE', $setting);
-            $this->_postmode = $setting;
-        }
-        public function set_headerarray($header)
-        {
-            $this->headerarray = $header;
-        }
-        public function set_plusview($plusview)
-        {
+    
+    /**
+     * Page title
+     * 
+     * @var string 
+     */
+     public $_title = "";
+     
+     /**
+      * styles container
+      * @var string
+      */
+     private $_style = array();
+    /**
+     * additional view files, data for rendering 
+     * use like the standard view() function, the first element of each given array must be the path string
+     * @var string array 
+     */
+    private $_plusview = array();
+    /**
+     * posttype for error displaying
+     * @var string 
+     */
+    private $_postmode;
+    /**
+     * CI super object
+     * @var object 
+     */
+    protected $CI;
+    /**
+     * default value: all time scripts
+     * @var array 
+     */
+    private $_scripts = array();
 
-               $this->plusview[] = $plusview;
-
-        }
-        public function set_script($script)
+    public function __construct()
+    {
+            $this->CI =& get_instance();
+            $this->_scripts = $this->CI->config->item('standard_scripts');
+            $this->_style = $this->CI->config->item('standard_css');
+    }
+    public function set_style($styles)
+    {
+        if (is_array($styles))
         {
-            if (is_array($script))
+            $this->_style = $this->_style+$styles;
+        }
+        else
+        {
+             $this->_style[] = $styles;
+        }
+    }
+    public function set_postmode($setting)
+    {
+        $this->_postmode = $setting;
+    }
+    public function set_plusview($plusview)
+    {
+
+           $this->_plusview[] = $plusview;
+
+    }
+    public function set_script($script)
+    {
+        if (is_array($script))
+        {
+            $this->_scripts = $this->_scripts+$script;
+        }
+        else
+        {
+             $this->_scripts[] = $script;
+        }
+    }
+    /**
+     * clear all data: title, styles, scripts, plusviews
+     */
+    public function clear_config()
+    {
+        $this->title = "";
+        $this->_style = array();
+        $this->_scripts = array();
+        $this->_plusview = array();
+    }
+    public function render_view()
+    {
+        
+        $this->CI->load->view('templates/header', array(
+            "title" => $this->_title,
+            "style" => $this->_style
+        ));
+        if(!empty($this->_plusview))
+        {
+            foreach ($this->_plusview as &$view)
             {
-                foreach ($script as $scriptpiece)
+                if (!isset($view[1]))
                 {
-                    $this->_scripts[] = $scriptpiece;
+                    $view[1] = array();
                 }
-            }
-            else
-            {
-                 $this->_scripts[] = $script;
+                $this->CI->load->view($view[0], $view[1]);
             }
         }
-    	public function view_maker()
-	{
-		$this->CI->load->view('templates/header', $this->headerarray);
-		if(!empty($this->plusview))
-		{
-                        foreach ($this->plusview as &$view)
-                        {
-                            if (!isset($view[1]))
-                            {
-				$view[1] = array();
-                            }
-                            $this->CI->load->view($view[0], $view[1]);
-                        }
-		}
-                
-		$footer['scripts'] = $this->_scripts;
-                $footer['postmode'] = $this->_postmode;
-		$this->CI->load->view('templates/footer', $footer);	
-	}
+
+        $this->CI->load->view('templates/footer', array(
+            'scripts' => $this->_scripts,
+            'postmode' =>$this->_postmode
+        ));	
+    }
 }

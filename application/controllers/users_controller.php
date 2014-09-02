@@ -38,24 +38,23 @@ class Users_controller extends CI_Controller
             $cap = $try>3 ? $this->_captcha_maker() : FALSE;
             $try++;
             $this->session->set_userdata('try', $try );
-            $headerarray['style'] = 'logins';
-            $headerarray['title'] = 'bejelentkezes';
-            $this->view_maker->set_headerarray($headerarray);
+            $this->view_maker->title = 'bejelentkezes';
+            $this->view_maker->set_style('logins');
             $this->view_maker->set_plusview(array('users/login', $cap));
-            $this->view_maker->view_maker();
+            $this->view_maker->render_view();
 
         }
         else
         {
             // Save important user's data into cookie
             $sessdata = array( 
-                    'user_id' =>  $this->loginfo[0]['u_user_id'],
-                    'username' => $this->loginfo[0]['u_nickname']
+                'user_id' =>  $this->loginfo[0]['u_user_id'],
+                'username' => $this->loginfo[0]['u_nickname']
             );
             $this->session->set_userdata($sessdata);
             $this->session->unset_userdata('try');
             $this->view_maker->set_plusview(array('templates/redirect'));
-            $this->view_maker->view_maker();
+            $this->view_maker->render_view();
         }
     }
     
@@ -67,10 +66,9 @@ class Users_controller extends CI_Controller
         {
             $cap = $this->_captcha_maker();
 
-            $headerarray['title'] = 'elfelejtett jelszó';
-            $this->view_maker->set_headerarray($headerarray);
+            $this->view_maker->title = 'elfelejtett jelszó';
             $this->view_maker->set_plusview(array('users/forgpw', $cap));
-            $this->view_maker->view_maker();
+            $this->view_maker->render_view();
 
         }
         else 
@@ -80,12 +78,10 @@ class Users_controller extends CI_Controller
             $email = $this->input->post('email');
             $key = $this->Users_model->gen_verification($username);
             $link = $this->load->view('forgpwmail', array('key' => $key, 'username' => $username),FALSE);	
-            $subject = "nevalaszolj";
-            $this->_mailer($link, $email, $subject);
-            $headerarray['title'] = 'regisztráció';
-            $this->view_maker->set_headerarray($headerarray);
+            $this->_mailer($link, $email, "nevalaszolj");
+            $this->view_maker->title = 'regisztráció';
             $this->view_maker->set_plusview(array('users/success'));
-            $this->view_maker->view_maker();
+            $this->view_maker->render_view();
 
 
         }
@@ -96,8 +92,7 @@ class Users_controller extends CI_Controller
      */
     public function password_reset($key)
     {
-        $data['u_pwres'] = $key;
-        $result = $this->db->get_where('user', $data);
+        $result = $this->db->get_where('user', array('u_pwres' => $key));
         // If $key doesn't exist, redirect.
         if (!$result->num_rows())
         {
@@ -108,8 +103,8 @@ class Users_controller extends CI_Controller
         if ($this->form_validation->run('password_reset') == FALSE)
         {
 
-            $this->view_maker->set_plusview(array('users/passres',$data['where']));
-            $this->view_maker->view_maker();
+            $this->view_maker->set_plusview(array('users/passres',$key));
+            $this->view_maker->render_view();
         }
         else
         {
@@ -127,10 +122,9 @@ class Users_controller extends CI_Controller
         if ($this->form_validation->run('registration') == FALSE)
         {
             $cap = $this->_captcha_maker();
-            $headerarray['title'] = 'regisztráció';
-            $this->view_maker->set_headerarray($headerarray);
+            $this->view_maker->title = 'regisztráció';
             $this->view_maker->set_plusview(array('users/regist', $cap));
-            $this->view_maker->view_maker();
+            $this->view_maker->render_view();
 
         }
         else
@@ -143,10 +137,9 @@ class Users_controller extends CI_Controller
             //Send verification email, to make sure the given email exists 
             $key = $this->Users_model->gen_verification($username);
             $mail = $this->load->view('regmail', array('key' => $key, 'username' => $username),FALSE);
-            $subject = "nevalaszolj";
-            $this->_mailer($mail, $usermail, $subject);
+            $this->_mailer($mail, $usermail, "nevalaszolj");
             $this->view_maker->set_plusview(array('users/success'));
-            $this->view_maker->view_maker();
+            $this->view_maker->render_view();
         }
     }
     public function logout()
@@ -172,11 +165,10 @@ class Users_controller extends CI_Controller
         $this->Users_model->confirm_user($name);
         $result = $result->result_array();
         // Save important user's data into cookie, like a successful login
-        $sessdata = array(
+        $this->session->set_userdata(array(
         'username' => $name,
         'user_id' => $result[0]['u_user_id']
-        );
-        $this->session->set_userdata($sessdata);
+        ));
         $this->load->view('templates/redirect');
     }
     /**
@@ -186,13 +178,12 @@ class Users_controller extends CI_Controller
     private function _captcha_maker()
     {
         $url = prep_url(base_url('captcha'));
-        $vals = array(
+        $cap = create_captcha(array(
                 'img_path' => './captcha/',
                 'img_url' => $url.'/',
                 'img_width' => '150',
                 'img_height' => 30,
-        );
-        $cap = create_captcha($vals);
+        ));
         $this->session->set_userdata('captword', $cap['word']);
         return $cap;
 
@@ -226,16 +217,16 @@ class Users_controller extends CI_Controller
     {
         if ($type == 'email')
         {
-                $array['u_email'] = $data;
+            $array['u_email'] = $data;
         }
         else
         {
-                $array['u_nickname'] = $data;
+            $array['u_nickname'] = $data;
         }
 
         if (!$this->db->get_where('user', $array)->num_rows())
         { 
-                return TRUE;
+            return TRUE;
         }
         $this->form_validation->set_message('unique_check', 'A(z) %s már foglalt!');
         return FALSE;
@@ -250,7 +241,7 @@ class Users_controller extends CI_Controller
         $valchap = $this->session->userdata('captword');
         if (strtolower ($valchap) == strtolower ($str))
         {
-                return TRUE;
+            return TRUE;
         }
         $this->form_validation->set_message('captvalidate', 'Helytelen a beírt karaktersor!');
         return FALSE;	
@@ -267,8 +258,8 @@ class Users_controller extends CI_Controller
         $user = $this->Users_model->get_valid_user($this->input->post('username'), $this->input->post('password'));
         if (!$user->num_rows())
         {
-                $this->form_validation->set_message('login_data_check', "Helytelen adatok!");
-                return FALSE;	
+            $this->form_validation->set_message('login_data_check', "Helytelen adatok!");
+            return FALSE;	
         }
 
         $this->loginfo = $user->result_array();
