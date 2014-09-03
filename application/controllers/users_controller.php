@@ -47,11 +47,10 @@ class Users_controller extends CI_Controller
         else
         {
             // Save important user's data into cookie
-            $sessdata = array( 
-                'user_id' =>  $this->loginfo[0]['u_user_id'],
+            $this->session->set_userdata(array( 
+                'user_id' =>  $this->loginfo[0]['u_id'],
                 'username' => $this->loginfo[0]['u_nickname']
-            );
-            $this->session->set_userdata($sessdata);
+            ));
             $this->session->unset_userdata('try');
             $this->view_maker->set_plusview(array('templates/redirect'));
             $this->view_maker->render_view();
@@ -167,7 +166,7 @@ class Users_controller extends CI_Controller
         // Save important user's data into cookie, like a successful login
         $this->session->set_userdata(array(
         'username' => $name,
-        'user_id' => $result[0]['u_user_id']
+        'user_id' => $result[0]['u_id']
         ));
         $this->load->view('templates/redirect');
     }

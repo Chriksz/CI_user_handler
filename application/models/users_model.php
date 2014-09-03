@@ -24,7 +24,7 @@ class Users_model extends CI_Model
                     'u_nickname' => $username,
                     'u_password' => sha1($this->input->post('password').$randomstring),
                     'u_email'=> $usermail,
-                    'u_reg_date' => date("Y-m-d"),
+                    'u_regdate' => date("Y-m-d"),
                     'u_birth' =>$birth,
                     'u_salt' => $randomstring
             );
