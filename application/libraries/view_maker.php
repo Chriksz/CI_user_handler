@@ -9,6 +9,11 @@
 class View_maker {
     
     /**
+     * Declare the used layout, every layout dir have to contain a footer and header file
+     * @var string 
+     */
+    public $layout = "standard";
+    /**
      * Page title
      * 
      * @var string 
@@ -93,7 +98,7 @@ class View_maker {
     public function render_view()
     {
         
-        $this->CI->load->view('templates/header', array(
+        $this->CI->load->view("templates/{$this->layout}/header", array(
             "title" => $this->_title,
             "style" => $this->_style
         ));
@@ -109,7 +114,7 @@ class View_maker {
             }
         }
 
-        $this->CI->load->view('templates/footer', array(
+        $this->CI->load->view("templates/{$this->layout}/footer", array(
             'scripts' => $this->_scripts,
             'postmode' =>$this->_postmode
         ));	
